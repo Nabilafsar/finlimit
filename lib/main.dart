@@ -1,5 +1,6 @@
+import 'package:finlimit/view/statistic_screen.dart';
 import 'package:flutter/material.dart';
-import 'view/welcome_screen.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
 
       // Halaman pertama
-      home: const WelcomeScreen(),
+      home: const StatisticScreen(),
     );
   }
 }
