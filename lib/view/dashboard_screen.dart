@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/main_bottom_navbar.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -7,6 +8,12 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F8),
+      bottomNavigationBar: MainBottomNavBar(
+        selectedIndex: 0,
+        onTap: (index) {
+          print("Tab clicked: $index");
+        },
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(bottom: 30),
@@ -25,10 +32,7 @@ class DashboardScreen extends StatelessWidget {
                         children: [
                           Text(
                             "Hello,",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey,
-                            ),
+                            style: TextStyle(fontSize: 18, color: Colors.grey),
                           ),
                           SizedBox(height: 4),
                           Text(
@@ -50,10 +54,7 @@ class DashboardScreen extends StatelessWidget {
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.person,
-                        size: 28,
-                      ),
+                      child: const Icon(Icons.person, size: 28),
                     ),
 
                     const SizedBox(width: 10),
@@ -91,10 +92,7 @@ class DashboardScreen extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         "Balanced",
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: Colors.white70, fontSize: 16),
                       ),
                     ),
 
@@ -115,13 +113,9 @@ class DashboardScreen extends StatelessWidget {
                     const SizedBox(height: 28),
 
                     Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: const [
-                        _ActionButton(
-                          icon: Icons.add,
-                          label: "Top Up",
-                        ),
+                        _ActionButton(icon: Icons.add, label: "Top Up"),
                         _ActionButton(
                           icon: Icons.track_changes,
                           label: "Limit",
@@ -140,8 +134,7 @@ class DashboardScreen extends StatelessWidget {
 
               // YOUR LIMIT
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: const [
                     Text(
@@ -150,7 +143,7 @@ class DashboardScreen extends StatelessWidget {
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -178,21 +171,17 @@ class DashboardScreen extends StatelessWidget {
                         Spacer(),
                         Text(
                           "Rp.150.000 / Rp.100.000",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
                     const SizedBox(height: 14),
                     ClipRRect(
-                      borderRadius:
-                          BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(20),
                       child: const LinearProgressIndicator(
                         value: 1,
                         minHeight: 18,
-                        backgroundColor:
-                            Color(0xFFE8E8E8),
+                        backgroundColor: Color(0xFFE8E8E8),
                         color: Colors.red,
                       ),
                     ),
@@ -204,8 +193,7 @@ class DashboardScreen extends StatelessWidget {
 
               // TRANSACTION
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: const [
                     Text(
@@ -214,7 +202,7 @@ class DashboardScreen extends StatelessWidget {
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -224,9 +212,7 @@ class DashboardScreen extends StatelessWidget {
               // CHART PLACEHOLDER
               Container(
                 height: 250,
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                ),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
                 decoration: BoxDecoration(
                   color: const Color(0xFF2E5BFF),
                   borderRadius: BorderRadius.circular(24),
@@ -234,10 +220,7 @@ class DashboardScreen extends StatelessWidget {
                 child: const Center(
                   child: Text(
                     "Transaction Chart Placeholder",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
                 ),
               ),
@@ -246,8 +229,7 @@ class DashboardScreen extends StatelessWidget {
 
               // MOTIVATION
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: const [
                     Text(
@@ -256,7 +238,7 @@ class DashboardScreen extends StatelessWidget {
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -264,8 +246,7 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(height: 12),
 
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
                     Expanded(
@@ -274,15 +255,11 @@ class DashboardScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius:
-                              BorderRadius.circular(22),
+                          borderRadius: BorderRadius.circular(22),
                         ),
                         child: const Text(
                           "Great job! You've successfully stayed within your Rp100 daily limit. Consistent small wins like this help build strong financial habits.",
-                          style: TextStyle(
-                            fontSize: 15,
-                            height: 1.5,
-                          ),
+                          style: TextStyle(fontSize: 15, height: 1.5),
                         ),
                       ),
                     ),
@@ -292,8 +269,7 @@ class DashboardScreen extends StatelessWidget {
                       height: 170,
                       decoration: BoxDecoration(
                         color: const Color(0xFF2E5BFF),
-                        borderRadius:
-                            BorderRadius.circular(22),
+                        borderRadius: BorderRadius.circular(22),
                       ),
                       child: const Center(
                         child: Icon(
@@ -311,8 +287,7 @@ class DashboardScreen extends StatelessWidget {
 
               // HISTORY TITLE
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: const [
                     Text(
@@ -321,7 +296,7 @@ class DashboardScreen extends StatelessWidget {
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -369,10 +344,7 @@ class _ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-  });
+  const _ActionButton({required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -385,19 +357,10 @@ class _ActionButton extends StatelessWidget {
             color: Colors.white,
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            icon,
-            color: Color(0xFF2E5BFF),
-          ),
+          child: Icon(icon, color: Color(0xFF2E5BFF)),
         ),
         const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-          ),
-        )
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
       ],
     );
   }
@@ -417,10 +380,7 @@ class _HistoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 6,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -431,29 +391,18 @@ class _HistoryItem extends StatelessWidget {
           const CircleAvatar(
             radius: 24,
             backgroundColor: Color(0xFF2E5BFF),
-            child: Icon(
-              Icons.payments,
-              color: Colors.white,
-            ),
+            child: Icon(Icons.payments, color: Colors.white),
           ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                  ),
-                ),
+                Text(subtitle, style: const TextStyle(color: Colors.grey)),
               ],
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
+import 'dashboard_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -12,11 +13,11 @@ class LoginScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Stack(
           children: [
+
             // Background Image
             Container(
               height: 350,
               width: double.infinity,
-
               decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage("assets/img/background.png"),
@@ -29,11 +30,15 @@ class LoginScreen extends StatelessWidget {
             SafeArea(
               child: Column(
                 children: [
+
                   // Logo
                   const SizedBox(height: 80),
 
                   Center(
-                    child: Image.asset("assets/img/logoputih.png", width: 180),
+                    child: Image.asset(
+                      "assets/img/logoputih.png",
+                      width: 180,
+                    ),
                   ),
 
                   const SizedBox(height: 120),
@@ -41,15 +46,12 @@ class LoginScreen extends StatelessWidget {
                   // White Container
                   Container(
                     width: double.infinity,
-
                     padding: const EdgeInsets.symmetric(
                       horizontal: 30,
                       vertical: 40,
                     ),
-
                     decoration: const BoxDecoration(
                       color: Color(0xFFF5F5F5),
-
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(50),
                         topRight: Radius.circular(50),
@@ -58,6 +60,7 @@ class LoginScreen extends StatelessWidget {
 
                     child: Column(
                       children: [
+
                         // Title
                         const Text(
                           "Login",
@@ -74,25 +77,20 @@ class LoginScreen extends StatelessWidget {
                         TextField(
                           decoration: InputDecoration(
                             hintText: "Email or Phone Number",
-
                             filled: true,
                             fillColor: const Color(0xFFEAEAEA),
-
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 15,
                               vertical: 12,
                             ),
-
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(40),
                               borderSide: BorderSide.none,
                             ),
-
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(40),
                               borderSide: BorderSide.none,
                             ),
-
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(40),
                               borderSide: const BorderSide(
@@ -108,28 +106,22 @@ class LoginScreen extends StatelessWidget {
                         // Password Field
                         TextField(
                           obscureText: true,
-
                           decoration: InputDecoration(
                             hintText: "Password",
-
                             filled: true,
                             fillColor: const Color(0xFFEAEAEA),
-
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 15,
                               vertical: 12,
                             ),
-
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(40),
                               borderSide: BorderSide.none,
                             ),
-
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(40),
                               borderSide: BorderSide.none,
                             ),
-
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(40),
                               borderSide: const BorderSide(
@@ -142,25 +134,28 @@ class LoginScreen extends StatelessWidget {
 
                         const SizedBox(height: 10),
 
-                        // Forgot Password
                         const SizedBox(height: 4),
 
                         // Login Button
                         SizedBox(
                           width: double.infinity,
                           height: 60,
-
                           child: ElevatedButton(
-                            onPressed: () {},
-
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const DashboardScreen(),
+                                ),
+                              );
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF2453E6),
-
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(40),
                               ),
                             ),
-
                             child: const Text(
                               "Login",
                               style: TextStyle(
@@ -178,7 +173,6 @@ class LoginScreen extends StatelessWidget {
                         Center(
                           child: TextButton(
                             onPressed: () {},
-
                             child: const Text(
                               "Forgot Password?",
                               style: TextStyle(
@@ -201,7 +195,6 @@ class LoginScreen extends StatelessWidget {
                                 color: const Color(0xFF2453E6),
                               ),
                             ),
-
                             const Padding(
                               padding: EdgeInsets.symmetric(horizontal: 15),
                               child: Text(
@@ -209,7 +202,6 @@ class LoginScreen extends StatelessWidget {
                                 style: TextStyle(fontSize: 18),
                               ),
                             ),
-
                             Expanded(
                               child: Container(
                                 height: 1,
@@ -226,13 +218,9 @@ class LoginScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Image.asset("assets/img/google.png", width: 55),
-
                             const SizedBox(width: 15),
-
                             Image.asset("assets/img/facebook.png", width: 55),
-
                             const SizedBox(width: 15),
-
                             Image.asset("assets/img/apple.png", width: 55),
                           ],
                         ),
@@ -245,20 +233,18 @@ class LoginScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const RegisterScreen(),
+                                builder: (context) =>
+                                    const RegisterScreen(),
                               ),
                             );
                           },
-
                           child: RichText(
                             text: const TextSpan(
                               text: "Don't Have an Account Yet? ",
-
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 18,
                               ),
-
                               children: [
                                 TextSpan(
                                   text: "Register",

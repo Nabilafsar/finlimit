@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
+import 'package:provider/provider.dart';
+import '../../viewmodels/auth_viewmodel.dart';
+import '../../models/user_model.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +20,9 @@ class RegisterScreen extends StatelessWidget {
           Container(
             height: 350,
             width: double.infinity,
-
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                  "assets/img/background.png",
-                ),
+                image: AssetImage("assets/img/background.png"),
                 fit: BoxFit.cover,
               ),
             ),
@@ -31,9 +32,7 @@ class RegisterScreen extends StatelessWidget {
           SafeArea(
             child: Column(
               children: [
-                
 
-                // Logo
                 const SizedBox(height: 80),
 
                 Center(
@@ -45,19 +44,15 @@ class RegisterScreen extends StatelessWidget {
 
                 const SizedBox(height: 120),
 
-                // White Container
                 Expanded(
                   child: Container(
                     width: double.infinity,
-
                     padding: const EdgeInsets.symmetric(
                       horizontal: 30,
                       vertical: 40,
                     ),
-
                     decoration: const BoxDecoration(
                       color: Color(0xFFF5F5F5),
-
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(50),
                         topRight: Radius.circular(50),
@@ -67,7 +62,7 @@ class RegisterScreen extends StatelessWidget {
                     child: Column(
                       children: [
 
-                        // Title
+                        // TITLE
                         const Text(
                           "Register",
                           style: TextStyle(
@@ -79,23 +74,18 @@ class RegisterScreen extends StatelessWidget {
 
                         const SizedBox(height: 20),
 
-                        // Name Field
+                        // NAME
                         TextField(
                           decoration: InputDecoration(
                             hintText: "Input Name",
-
                             filled: true,
                             fillColor: const Color(0xFFEAEAEA),
-
-                            contentPadding:
-                                const EdgeInsets.symmetric(
+                            contentPadding: const EdgeInsets.symmetric(
                               horizontal: 15,
                               vertical: 12,
                             ),
-
                             border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.circular(40),
+                              borderRadius: BorderRadius.circular(40),
                               borderSide: BorderSide.none,
                             ),
                           ),
@@ -103,24 +93,18 @@ class RegisterScreen extends StatelessWidget {
 
                         const SizedBox(height: 15),
 
-                        // Email Field
+                        // EMAIL
                         TextField(
                           decoration: InputDecoration(
-                            hintText:
-                                "Email or Phone Number",
-
+                            hintText: "Email or Phone Number",
                             filled: true,
                             fillColor: const Color(0xFFEAEAEA),
-
-                            contentPadding:
-                                const EdgeInsets.symmetric(
+                            contentPadding: const EdgeInsets.symmetric(
                               horizontal: 15,
                               vertical: 12,
                             ),
-
                             border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.circular(40),
+                              borderRadius: BorderRadius.circular(40),
                               borderSide: BorderSide.none,
                             ),
                           ),
@@ -128,25 +112,19 @@ class RegisterScreen extends StatelessWidget {
 
                         const SizedBox(height: 15),
 
-                        // Password Field
+                        // PASSWORD
                         TextField(
                           obscureText: true,
-
                           decoration: InputDecoration(
                             hintText: "Password",
-
                             filled: true,
                             fillColor: const Color(0xFFEAEAEA),
-
-                            contentPadding:
-                                const EdgeInsets.symmetric(
+                            contentPadding: const EdgeInsets.symmetric(
                               horizontal: 15,
                               vertical: 12,
                             ),
-
                             border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.circular(40),
+                              borderRadius: BorderRadius.circular(40),
                               borderSide: BorderSide.none,
                             ),
                           ),
@@ -154,33 +132,24 @@ class RegisterScreen extends StatelessWidget {
 
                         const SizedBox(height: 15),
 
-                        // Register Button
+                        // REGISTER BUTTON
                         SizedBox(
                           width: double.infinity,
                           height: 60,
-
                           child: ElevatedButton(
-                            onPressed: () {},
-
-                            style:
-                                ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color(0xFF2453E6),
-
-                              shape:
-                                  RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(
-                                        40),
+                            onPressed: () async {
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2453E6),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(40),
                               ),
                             ),
-
                             child: const Text(
                               "Register",
                               style: TextStyle(
                                 fontSize: 18,
-                                fontWeight:
-                                    FontWeight.bold,
+                                fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
                             ),
@@ -189,35 +158,26 @@ class RegisterScreen extends StatelessWidget {
 
                         const SizedBox(height: 10),
 
-                        // Divider
+                        // DIVIDER
                         Row(
                           children: [
-
                             Expanded(
                               child: Container(
                                 height: 2,
-                                color: const Color(
-                                    0xFF2453E6),
+                                color: const Color(0xFF2453E6),
                               ),
                             ),
-
                             const Padding(
-                              padding:
-                                  EdgeInsets.symmetric(
-                                      horizontal: 15),
+                              padding: EdgeInsets.symmetric(horizontal: 15),
                               child: Text(
                                 "Register With",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                ),
+                                style: TextStyle(fontSize: 18),
                               ),
                             ),
-
                             Expanded(
                               child: Container(
                                 height: 1,
-                                color: const Color(
-                                    0xFF2453E6),
+                                color: const Color(0xFF2453E6),
                               ),
                             ),
                           ],
@@ -225,67 +185,44 @@ class RegisterScreen extends StatelessWidget {
 
                         const SizedBox(height: 25),
 
-                        // Social Icons
+                        // SOCIAL ICONS
                         Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-
-                            Image.asset(
-                              "assets/img/google.png",
-                              width: 55,
-                            ),
-
+                            Image.asset("assets/img/google.png", width: 55),
                             const SizedBox(width: 15),
-
-                            Image.asset(
-                              "assets/img/facebook.png",
-                              width: 55,
-                            ),
-
+                            Image.asset("assets/img/facebook.png", width: 55),
                             const SizedBox(width: 15),
-
-                            Image.asset(
-                              "assets/img/apple.png",
-                              width: 55,
-                            ),
+                            Image.asset("assets/img/apple.png", width: 55),
                           ],
                         ),
 
                         const Spacer(),
 
-                        // Login Text
+                        // LOGIN TEXT
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const LoginScreen(),
+                                builder: (context) =>
+                                    const LoginScreen(),
                               ),
                             );
                           },
-
-                          
-
                           child: RichText(
                             text: const TextSpan(
-                              text:
-                                  "Do You Have an Account? ",
+                              text: "Do You Have an Account? ",
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 18,
                               ),
-
                               children: [
-
                                 TextSpan(
                                   text: "Login",
                                   style: TextStyle(
-                                    color:
-                                        Color(0xFF2453E6),
-
-                                    fontWeight:
-                                        FontWeight.bold,
+                                    color: Color(0xFF2453E6),
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
