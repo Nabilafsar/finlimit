@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import '../widgets/main_bottom_navbar.dart';
+import 'package:provider/provider.dart';
+import '../viewmodels/auth_viewmodel.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final authVM = Provider.of<AuthViewModel>(context);
+    final userName = authVM.currentUser?.fullname ?? "User";
+
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F8),
-      bottomNavigationBar: MainBottomNavBar(
-        selectedIndex: 0,
-        onTap: (index) {
-          print("Tab clicked: $index");
-        },
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(bottom: 30),
@@ -26,18 +24,18 @@ class DashboardScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             "Hello,",
                             style: TextStyle(fontSize: 18, color: Colors.grey),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
-                            "Miftah Farid",
-                            style: TextStyle(
+                            userName,
+                            style: const TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.w700,
                             ),

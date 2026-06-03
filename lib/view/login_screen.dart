@@ -1,9 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../viewmodels/auth_viewmodel.dart';
 import 'register_screen.dart';
-import 'dashboard_screen.dart';
+import 'main_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    final authVM = Provider.of<AuthViewModel>(context, listen: false);
+
+    final success = await authVM.login(
+      emailController.text.trim(),
+      passwordController.text,
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+        (route) => false,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(authVM.errorMessage ?? "Login gagal"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,8 +119,10 @@ class LoginScreen extends StatelessWidget {
 
                         // Email Field
                         TextField(
+                          controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
-                            hintText: "Email or Phone Number",
+                            hintText: "Email",
                             filled: true,
                             fillColor: const Color(0xFFEAEAEA),
                             contentPadding: const EdgeInsets.symmetric(
@@ -105,7 +151,8 @@ class LoginScreen extends StatelessWidget {
 
                         // Password Field
                         TextField(
-                          obscureText: true,
+                          controller: passwordController,
+                          obscureText: _obscurePassword,
                           decoration: InputDecoration(
                             hintText: "Password",
                             filled: true,
@@ -113,6 +160,19 @@ class LoginScreen extends StatelessWidget {
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 15,
                               vertical: 12,
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(40),
@@ -137,34 +197,43 @@ class LoginScreen extends StatelessWidget {
                         const SizedBox(height: 4),
 
                         // Login Button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 60,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const DashboardScreen(),
+                        Consumer<AuthViewModel>(
+                          builder: (context, authVM, child) {
+                            return SizedBox(
+                              width: double.infinity,
+                              height: 60,
+                              child: ElevatedButton(
+                                onPressed: authVM.isLoading
+                                    ? null
+                                    : _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF2453E6),
+                                  disabledBackgroundColor:
+                                      const Color(0xFF2453E6).withOpacity(0.6),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(40),
+                                  ),
                                 ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2453E6),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40),
+                                child: authVM.isLoading
+                                    ? const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2.5,
+                                        ),
+                                      )
+                                    : const Text(
+                                        "Login",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                               ),
-                            ),
-                            child: const Text(
-                              "Login",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
+                            );
+                          },
                         ),
 
                         const SizedBox(height: 10),
@@ -230,7 +299,7 @@ class LoginScreen extends StatelessWidget {
                         // Register Text
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>

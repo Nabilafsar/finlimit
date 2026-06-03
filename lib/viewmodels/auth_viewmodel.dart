@@ -9,17 +9,67 @@ class AuthViewModel extends ChangeNotifier {
   String? errorMessage;
   UserModel? currentUser;
 
+  // VALIDASI EMAIL FORMAT
+  bool _isValidEmail(String email) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+  }
+
   // REGISTER
   Future<bool> register(UserModel user) async {
     isLoading = true;
+    errorMessage = null;
     notifyListeners();
 
-    await _repo.register(user);
+    try {
+      // Validasi field kosong
+      if (user.fullname.trim().isEmpty) {
+        errorMessage = "Nama tidak boleh kosong";
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
 
-    isLoading = false;
-    notifyListeners();
+      if (user.email.trim().isEmpty) {
+        errorMessage = "Email tidak boleh kosong";
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
 
-    return true;
+      if (!_isValidEmail(user.email)) {
+        errorMessage = "Format email tidak valid";
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      if (user.password.length < 6) {
+        errorMessage = "Password minimal 6 karakter";
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      // Cek email duplikat
+      final emailExists = await _repo.isEmailExists(user.email);
+      if (emailExists) {
+        errorMessage = "Email sudah terdaftar";
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      await _repo.register(user);
+
+      isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      errorMessage = "Terjadi kesalahan: ${e.toString()}";
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 
   // LOGIN
@@ -28,19 +78,47 @@ class AuthViewModel extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
 
-    final user = await _repo.login(email, password);
+    try {
+      // Validasi field kosong
+      if (email.trim().isEmpty) {
+        errorMessage = "Email tidak boleh kosong";
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
 
-    isLoading = false;
+      if (password.trim().isEmpty) {
+        errorMessage = "Password tidak boleh kosong";
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
 
-    if (user == null) {
-      errorMessage = "Email atau password salah";
+      final user = await _repo.login(email, password);
+
+      isLoading = false;
+
+      if (user == null) {
+        errorMessage = "Email atau password salah";
+        notifyListeners();
+        return false;
+      }
+
+      currentUser = user;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      errorMessage = "Terjadi kesalahan: ${e.toString()}";
+      isLoading = false;
       notifyListeners();
       return false;
     }
+  }
 
-    currentUser = user;
+  // LOGOUT
+  void logout() {
+    currentUser = null;
+    errorMessage = null;
     notifyListeners();
-
-    return true;
   }
 }
