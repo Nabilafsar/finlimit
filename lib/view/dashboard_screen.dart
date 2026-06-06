@@ -465,7 +465,25 @@ class _HistoryItem extends StatelessWidget {
         return const Color(0xFF6B7280);
     }
   }
+String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final isToday = date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
 
+    final hour = date.hour % 12 == 0 ? 12 : date.hour % 12;
+    final minute = date.minute.toString().padLeft(2, '0');
+    final period = date.hour >= 12 ? 'PM' : 'AM';
+    final time = '$hour:$minute $period';
+
+    if (isToday) return 'Today $time';
+
+    const months = [
+      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return '${months[date.month]} ${date.day}, $time';
+  }
   @override
   Widget build(BuildContext context) {
     final isExpense = transaction.isExpense;
@@ -500,6 +518,14 @@ class _HistoryItem extends StatelessWidget {
                 Text(
                   transaction.subtitle,
                   style: const TextStyle(color: Colors.grey, fontSize: 13),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _formatDate(transaction.date),
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 11,
+                  ),
                 ),
               ],
             ),

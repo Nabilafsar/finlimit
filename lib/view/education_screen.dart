@@ -14,7 +14,7 @@ class EducationScreen extends StatefulWidget {
 class _EducationScreenState extends State<EducationScreen> {
   late DashboardViewModel _vm;
 
-  @override
+ @override
   void initState() {
     super.initState();
     final authVM = context.read<AuthViewModel>();
@@ -24,6 +24,24 @@ class _EducationScreenState extends State<EducationScreen> {
         userBalance: authVM.currentUser?.balance ?? 0,
         userDailyLimit: authVM.currentUser?.dailyLimit ?? 0,
       );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthViewModel>().addListener(_onAuthChanged);
+    });
+  }
+
+  @override
+  void dispose() {
+    context.read<AuthViewModel>().removeListener(_onAuthChanged);
+    super.dispose();
+  }
+
+  void _onAuthChanged() {
+    final authVM = context.read<AuthViewModel>();
+    _vm.loadDashboard(
+      authVM.currentUser?.id ?? '',
+      userBalance: authVM.currentUser?.balance ?? 0,
+      userDailyLimit: authVM.currentUser?.dailyLimit ?? 0,
+    );
   }
 
   String _fmt(double v) {
