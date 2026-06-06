@@ -146,17 +146,6 @@ static Future<int> updateBalance(String userId, double balance) async {
     );
   }
 
-  static Future<List<Map<String, dynamic>>> getStarredNotifications(
-      String userId) async {
-    final db = await AppDatabase.getDatabase();
-    return await db.query(
-      'notifications',
-      where: 'user_id = ? AND is_starred = 1',
-      whereArgs: [userId],
-      orderBy: 'time DESC',
-    );
-  }
-
   static Future<int> markNotificationAsRead(String id) async {
     final db = await AppDatabase.getDatabase();
     return await db.update(
@@ -164,16 +153,6 @@ static Future<int> updateBalance(String userId, double balance) async {
       {'is_read': 1},
       where: 'id = ?',
       whereArgs: [id],
-    );
-  }
-
-  static Future<int> markAllNotificationsAsRead(String userId) async {
-    final db = await AppDatabase.getDatabase();
-    return await db.update(
-      'notifications',
-      {'is_read': 1},
-      where: 'user_id = ?',
-      whereArgs: [userId],
     );
   }
 

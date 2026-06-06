@@ -7,6 +7,8 @@ import '../viewmodels/dashboard_viewmodel.dart';
 import 'add_transaction_screen.dart';
 import 'topup_screen.dart';
 import 'set_limit_screen.dart';
+import '../viewmodels/notification_viewmodel.dart';
+import '../widgets/notification_badge.dart';
 
 // ── DashboardScreen: StatefulWidget supaya bisa reload saat pop dari add tx ──
 class DashboardScreen extends StatefulWidget {
@@ -118,21 +120,32 @@ class _DashboardContent extends StatelessWidget {
                       child: const Icon(Icons.person, size: 28),
                     ),
                     const SizedBox(width: 10),
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: const BoxDecoration(
-                        color: Colors.black,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.notifications_none,
-                        color: Colors.white,
+                    GestureDetector(
+                      onTap: () => Navigator.pushNamed(context, '/notification'),
+                      child: Consumer<NotificationViewModel>(
+                        builder: (context, notifVM, _) {
+                          return NotificationBadge(
+                            count: notifVM.unreadCount,
+                            child: Container(
+                              width: 50,
+                              height: 50,
+                              decoration: const BoxDecoration(
+                                color: Colors.black,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.notifications_none,
+                                color: Colors.white,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
                 ),
               ),
+
 
               const SizedBox(height: 24),
 
@@ -365,7 +378,7 @@ class _DashboardContent extends StatelessWidget {
                     )
                   : Column(
                       children: vm.recentTransactions
-                          .take(10)
+                          .take(5)
                           .map((t) => _HistoryItem(transaction: t, vm: vm))
                           .toList(),
                     ),

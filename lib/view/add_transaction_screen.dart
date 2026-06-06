@@ -5,8 +5,10 @@ import 'package:provider/provider.dart';
 import '../models/transaction_model.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../viewmodels/dashboard_viewmodel.dart';
+import '../viewmodels/notification_viewmodel.dart';
 import '../viewmodels/transaction_viewmodel.dart';
 import 'add_transaction_success_screen.dart';
+
 
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
@@ -88,9 +90,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Future<void> _submit(TransactionViewModel vm) async {
-    // Ambil provider dari context SEBELUM async gap
     final authVM = context.read<AuthViewModel>();
     final dashVM = context.read<DashboardViewModel>();
+    final notifVM = context.read<NotificationViewModel>();
     final user = authVM.currentUser;
 
     if (user == null) return;
@@ -98,12 +100,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final tx = await vm.saveTransaction(
       userId: user.id,
       userFullname: user.fullname,
+      notificationVM: notifVM,
+      dailyLimit: user.dailyLimit,
     );
 
     if (!mounted) return;
 
     if (tx != null) {
-      // Refresh dashboard & user balance
       dashVM.addTransaction(tx);
       await authVM.refreshUser(user.id);
 
@@ -306,7 +309,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? cat.color
-                                      : cat.color.withOpacity(0.55),
+                                      : cat.color.withValues(alpha: 0.55),
                                   borderRadius: BorderRadius.circular(16),
                                   border: isSelected
                                       ? Border.all(
@@ -317,7 +320,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                   boxShadow: isSelected
                                       ? [
                                           BoxShadow(
-                                            color: cat.color.withOpacity(0.4),
+                                            color: cat.color.withValues(alpha: 0.4),
                                             blurRadius: 8,
                                           ),
                                         ]
