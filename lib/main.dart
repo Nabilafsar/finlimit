@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'viewmodels/auth_viewmodel.dart';
 import 'viewmodels/dashboard_viewmodel.dart';
 import 'viewmodels/statistic_viewmodel.dart';
+import 'viewmodels/settings_viewmodel.dart';   // ← TAMBAH
+import 'viewmodels/history_viewmodel.dart'; 
 import 'viewmodels/education_viewmodel.dart'; // ← TAMBAH INI
 import 'view/splash_screen.dart';
 import 'view/login_screen.dart';
@@ -25,6 +27,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProvider(create: (_) => DashboardViewModel()),
         ChangeNotifierProvider(create: (_) => StatisticViewModel()),
+        ChangeNotifierProvider(create: (_) => SettingsViewModel()),  // ← TAMBAH
+        ChangeNotifierProvider(create: (_) => HistoryViewModel()),
         ChangeNotifierProvider(create: (_) => EducationViewModel()), // ← TAMBAH INI
       ],
       child: MaterialApp(

@@ -17,7 +17,7 @@ class EducationScreen extends StatefulWidget {
 class _EducationScreenState extends State<EducationScreen> {
   late DashboardViewModel _vm;
 
-  @override
+ @override
   void initState() {
     super.initState();
     final authVM = context.read<AuthViewModel>();
