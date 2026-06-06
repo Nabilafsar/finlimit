@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../data/db/db_helper.dart';
 import '../viewmodels/auth_viewmodel.dart';
+import 'package:uuid/uuid.dart';
 
 class TopUpScreen extends StatefulWidget {
   const TopUpScreen({super.key});
@@ -95,6 +96,20 @@ class _TopUpScreenState extends State<TopUpScreen> {
     final authVM = context.read<AuthViewModel>();
     final userId = authVM.currentUser?.id ?? '';
     final currentBalance = authVM.currentUser?.balance ?? 0.0;
+
+    // Insert transaksi incomes ke DB
+    final txId = const Uuid().v4();
+    await DbHelper.insertTransaction({
+      'id': txId,
+      'user_id': userId,
+      'title': 'Income',
+      'subtitle': 'Top Up Saldo',
+      'amount': amount,
+      'category': 'incomes',
+      'payment_method': '',
+      'date': DateTime.now().toIso8601String(),
+    });
+
     await DbHelper.updateBalance(userId, currentBalance + amount);
     await authVM.refreshUser(userId);
 
@@ -208,7 +223,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 8,
                       offset: const Offset(0, 2))
                 ],
@@ -283,7 +298,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
                           ? [
                               BoxShadow(
                                   color: const Color(0xFF2E5BFF)
-                                      .withOpacity(0.3),
+                                      .withValues(alpha: 0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2))
                             ]

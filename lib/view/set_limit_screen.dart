@@ -276,7 +276,7 @@ class _SetLimitScreenState extends State<SetLimitScreen> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFF2E5BFF).withOpacity(0.08),
+                color: const Color(0xFF2E5BFF).withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Row(
@@ -337,7 +337,7 @@ class _SetLimitScreenState extends State<SetLimitScreen> {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2))
         ],

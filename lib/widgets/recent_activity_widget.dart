@@ -9,23 +9,52 @@ class RecentActivityWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<StatisticViewModel>();
+    final transactions = vm.filteredTransactions;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'Recent Activity',
           style: TextStyle(
-            fontSize: 20, fontWeight: FontWeight.w800,
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
             color: Color(0xFF0F172A),
           ),
         ),
         const SizedBox(height: 16),
         _CategoryFilterBar(),
         const SizedBox(height: 16),
-        ...vm.filteredTransactions.map((t) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: _TransactionTile(transaction: t),
-        )),
+        // PERBAIKAN: empty state jika tidak ada transaksi
+        if (transactions.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 32),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                Icon(Icons.receipt_long_outlined,
+                    size: 40, color: Colors.grey.shade300),
+                const SizedBox(height: 10),
+                Text(
+                  'Belum ada transaksi',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade400,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          ...transactions.map((t) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _TransactionTile(transaction: t),
+              )),
       ],
     );
   }
@@ -35,20 +64,12 @@ class _CategoryFilterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<StatisticViewModel>();
+
+    // PERBAIKAN: dinamis dari semua TransactionCategory
     final filters = <TransactionCategory?>[
       null,
-      TransactionCategory.incomes,
-      TransactionCategory.food,
-      TransactionCategory.drink,
-      TransactionCategory.transportation,
+      ...TransactionCategory.values,
     ];
-    final labels = <TransactionCategory?, String>{
-      null: 'All',
-      TransactionCategory.incomes: 'Incomes',
-      TransactionCategory.food: 'Food',
-      TransactionCategory.drink: 'Drink',
-      TransactionCategory.transportation: 'Transportation',
-    };
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -56,28 +77,36 @@ class _CategoryFilterBar extends StatelessWidget {
       child: Row(
         children: filters.map((cat) {
           final isSelected = vm.selectedCategory == cat;
+          final label = cat == null ? 'All' : vm.categoryLabel(cat);
           return Padding(
             padding: const EdgeInsets.only(right: 10),
             child: GestureDetector(
               onTap: () => vm.setCategoryFilter(cat),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 18, vertical: 10),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF1E4FC8) : Colors.transparent,
+                  color: isSelected
+                      ? const Color(0xFF1E4FC8)
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(50),
                   border: Border.all(
                     color: isSelected
                         ? const Color(0xFF1E4FC8)
-                        : const Color(0xFF1E4FC8).withValues(alpha:0.5),
+                        : const Color(0xFF1E4FC8)
+                            .withValues(alpha: 0.5),
                     width: 1.5,
                   ),
                 ),
                 child: Text(
-                  labels[cat]!,
+                  label,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : const Color(0xFF1E4FC8),
-                    fontSize: 13, fontWeight: FontWeight.w600,
+                    color: isSelected
+                        ? Colors.white
+                        : const Color(0xFF1E4FC8),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -106,17 +135,21 @@ class _TransactionTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
-            blurRadius: 12, offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding:
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
           Container(
-            width: 48, height: 48,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            width: 48,
+            height: 48,
+            decoration:
+                BoxDecoration(color: color, shape: BoxShape.circle),
             child: Icon(icon, color: Colors.white, size: 22),
           ),
           const SizedBox(width: 14),
@@ -127,7 +160,8 @@ class _TransactionTile extends StatelessWidget {
                 Text(
                   transaction.title,
                   style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
                     color: Color(0xFF0F172A),
                   ),
                 ),
@@ -135,7 +169,8 @@ class _TransactionTile extends StatelessWidget {
                 Text(
                   transaction.subtitle,
                   style: const TextStyle(
-                    fontSize: 12, color: Color(0xFF94A3B8),
+                    fontSize: 12,
+                    color: Color(0xFF94A3B8),
                   ),
                 ),
               ],
@@ -147,14 +182,18 @@ class _TransactionTile extends StatelessWidget {
               Text(
                 '${isExpense ? '-' : '+'}${vm.formatRupiah(transaction.amount)}',
                 style: TextStyle(
-                  fontSize: 14, fontWeight: FontWeight.w700,
-                  color: isExpense ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: isExpense
+                      ? const Color(0xFFDC2626)
+                      : const Color(0xFF16A34A),
                 ),
               ),
               const SizedBox(height: 3),
               Text(
                 vm.categoryLabel(transaction.category),
-                style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                style: const TextStyle(
+                    fontSize: 11, color: Color(0xFF94A3B8)),
               ),
             ],
           ),

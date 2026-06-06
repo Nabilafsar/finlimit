@@ -24,17 +24,20 @@ class StatisticViewModel extends ChangeNotifier {
 
   double get savedBalance => _savedBalance;
 
+  // PERBAIKAN: persentase expense dari total (expense+income)
   double get totalSpendPercent {
-    if (_allTransactions.isEmpty) return 0;
     final totalExpense = _allTransactions
         .where((t) => t.isExpense)
         .fold(0.0, (sum, t) => sum + t.amount.abs());
     final totalIncome = _allTransactions
         .where((t) => !t.isExpense)
         .fold(0.0, (sum, t) => sum + t.amount.abs());
-    if (totalIncome <= 0) return 0;
-    return ((totalExpense / totalIncome) * 100).clamp(0.0, 100.0);
+    final grandTotal = totalExpense + totalIncome;
+    if (grandTotal <= 0) return 0;
+    return ((totalExpense / grandTotal) * 100).clamp(0.0, 100.0);
   }
+
+  bool get hasTransactions => _allTransactions.isNotEmpty;
 
   Map<TransactionCategory, double> get categorySpend {
     final result = <TransactionCategory, double>{};
@@ -49,13 +52,6 @@ class StatisticViewModel extends ChangeNotifier {
           .fold(0.0, (sum, t) => sum + t.amount.abs());
       result[cat] = totalExpense > 0 ? (catTotal / totalExpense) * 100 : 0;
     }
-
-    final totalIncome = _allTransactions
-        .where((t) => !t.isExpense)
-        .fold(0.0, (sum, t) => sum + t.amount.abs());
-    final grandTotal = totalExpense + totalIncome;
-    result[TransactionCategory.incomes] =
-        grandTotal > 0 ? (totalIncome / grandTotal) * 100 : 0;
 
     return result;
   }
@@ -76,8 +72,8 @@ class StatisticViewModel extends ChangeNotifier {
               t.date.year == month.year &&
               t.date.month == month.month)
           .fold(0.0, (sum, t) => sum + t.amount.abs());
-      final net = (income - expense) / 1000000;
-      return net < 0 ? 0 : net;
+      // PERBAIKAN: tidak di-clamp ke 0, tampilkan nilai real dalam juta
+      return (income - expense) / 1000000;
     });
   }
 
@@ -100,8 +96,7 @@ class StatisticViewModel extends ChangeNotifier {
       final expense = _allTransactions
           .where((t) => t.isExpense && t.date.year == year)
           .fold(0.0, (sum, t) => sum + t.amount.abs());
-      final net = (income - expense) / 1000000;
-      return net < 0 ? 0 : net;
+      return (income - expense) / 1000000;
     });
   }
 
@@ -217,6 +212,7 @@ class StatisticViewModel extends ChangeNotifier {
   }
 
   String formatChartValue(double val) {
+    if (val < 0) return '-${(-val).toStringAsFixed(1)}Jt';
     if (val >= 10) return '${val.toInt()}Jt';
     return val.toStringAsFixed(1);
   }

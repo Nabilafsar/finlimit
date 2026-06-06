@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../data/db/db_helper.dart';
 import '../models/transaction_model.dart';
+import 'notification_viewmodel.dart';
 
 class TransactionViewModel extends ChangeNotifier {
   bool isLoading = false;
@@ -59,6 +60,8 @@ class TransactionViewModel extends ChangeNotifier {
   Future<TransactionModel?> saveTransaction({
     required String userId,
     required String userFullname,
+    required NotificationViewModel notificationVM,
+    required double dailyLimit,
   }) async {
     if (!isValid) {
       errorMessage = 'Masukkan jumlah dan pilih kategori terlebih dahulu';
@@ -95,6 +98,28 @@ class TransactionViewModel extends ChangeNotifier {
             ? currentBalance - amount
             : currentBalance + amount;
         await DbHelper.updateBalance(userId, newBalance);
+      }
+
+      // Cek limit dan kirim notifikasi jika perlu
+      if (isExpense) {
+        final allTx = await DbHelper.getTransactionsByUser(userId);
+        final today = DateTime.now();
+        final todaySpending = allTx
+            .where((t) {
+              final date =
+                  DateTime.tryParse(t['date'] ?? '') ?? DateTime(2000);
+              return t['category'] != 'incomes' &&
+                  date.year == today.year &&
+                  date.month == today.month &&
+                  date.day == today.day;
+            })
+            .fold(0.0, (sum, t) => sum + (t['amount'] as num).abs());
+
+        await notificationVM.checkAndNotify(
+          userId: userId,
+          todaySpending: todaySpending,
+          dailyLimit: dailyLimit,
+        );
       }
 
       isLoading = false;

@@ -18,7 +18,6 @@ class StatisticScreen extends StatefulWidget {
 class _StatisticScreenState extends State<StatisticScreen> {
   @override
   Widget build(BuildContext context) {
-    // Tidak buat provider baru — pakai yang sudah ada di main.dart
     return const _StatisticViewContent();
   }
 }
@@ -31,19 +30,47 @@ class _StatisticViewContent extends StatefulWidget {
 }
 
 class _StatisticViewContentState extends State<_StatisticViewContent> {
+  String? _lastLoadedUserId;
+  double? _lastBalance;
+
   @override
   void initState() {
     super.initState();
-    // Panggil loadStatistic() setelah frame pertama selesai render
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authVM = context.read<AuthViewModel>();
-      final userId = authVM.currentUser?.id ?? '';
-      final balance = authVM.currentUser?.balance ?? 0.0;
-      context.read<StatisticViewModel>().loadStatistic(
-        userId,
-        userBalance: balance,
-      );
+      _loadData();
+      context.read<AuthViewModel>().addListener(_onAuthChanged);
     });
+  }
+
+  @override
+  void dispose() {
+    context.read<AuthViewModel>().removeListener(_onAuthChanged);
+    super.dispose();
+  }
+
+  void _onAuthChanged() {
+    final authVM = context.read<AuthViewModel>();
+    final newBalance = authVM.currentUser?.balance ?? 0.0;
+    final newUserId = authVM.currentUser?.id ?? '';
+
+    if (newBalance != _lastBalance || newUserId != _lastLoadedUserId) {
+      _loadData();
+    }
+  }
+
+  void _loadData() {
+    if (!mounted) return;
+    final authVM = context.read<AuthViewModel>();
+    final userId = authVM.currentUser?.id ?? '';
+    final balance = authVM.currentUser?.balance ?? 0.0;
+
+    context.read<StatisticViewModel>().loadStatistic(
+          userId,
+          userBalance: balance,
+        );
+
+    _lastLoadedUserId = userId;
+    _lastBalance = balance;
   }
 
   @override
@@ -93,46 +120,17 @@ class _StatisticViewContentState extends State<_StatisticViewContent> {
 class _AppBarSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: () => Navigator.of(context).maybePop(),
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 18,
-                  color: Color(0xFF0F172A),
-                ),
-              ),
-            ),
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(20, 16, 20, 24),
+      child: Center(
+        child: Text(
+          'Statistik',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF0F172A),
           ),
-          const Text(
-            'Statistik',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF0F172A),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

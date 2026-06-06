@@ -6,11 +6,13 @@ import 'viewmodels/statistic_viewmodel.dart';
 import 'viewmodels/settings_viewmodel.dart';   // ← TAMBAH
 import 'viewmodels/history_viewmodel.dart'; 
 import 'viewmodels/education_viewmodel.dart'; // ← TAMBAH INI
+import 'viewmodels/notification_viewmodel.dart';
 import 'view/splash_screen.dart';
 import 'view/login_screen.dart';
 import 'view/register_screen.dart';
 import 'view/welcome_screen.dart';
 import 'view/main_screen.dart';
+import 'view/notification_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +32,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),  // ← TAMBAH
         ChangeNotifierProvider(create: (_) => HistoryViewModel()),
         ChangeNotifierProvider(create: (_) => EducationViewModel()), // ← TAMBAH INI
+        ChangeNotifierProvider(create: (_) => NotificationViewModel()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -39,6 +42,7 @@ class MyApp extends StatelessWidget {
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/main': (context) => const MainScreen(),
+          '/notification': (context) => const NotificationScreen(),
         },
       ),
     );
