@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../data/db/db_helper.dart';
 import '../models/transaction_model.dart';
 
 enum PeriodFilter { month, year }
@@ -10,36 +11,145 @@ class StatisticViewModel extends ChangeNotifier {
   int _touchedLineIndex = -1;
   double _touchedLineX = 0;
 
+  bool isLoading = false;
+
+  List<TransactionModel> _allTransactions = [];
+  double _savedBalance = 0;
+
   PeriodFilter get selectedPeriod => _selectedPeriod;
   TransactionCategory? get selectedCategory => _selectedCategory;
   int get touchedDonutIndex => _touchedDonutIndex;
   int get touchedLineIndex => _touchedLineIndex;
   double get touchedLineX => _touchedLineX;
 
-  final List<double> monthlyBalance = [20, 45, 100, 60, 85, 30, 55, 90, 40, 70, 50, 35];
-  final List<String> monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  final List<double> yearlyBalance = [300, 450, 600, 500, 700, 550];
-  final List<String> yearLabels = ['2019', '2020', '2021', '2022', '2023', '2024'];
+  double get savedBalance => _savedBalance;
 
-  List<double> get chartData => _selectedPeriod == PeriodFilter.month ? monthlyBalance : yearlyBalance;
-  List<String> get chartLabels => _selectedPeriod == PeriodFilter.month ? monthLabels : yearLabels;
+  double get totalSpendPercent {
+    if (_allTransactions.isEmpty) return 0;
+    final totalExpense = _allTransactions
+        .where((t) => t.isExpense)
+        .fold(0.0, (sum, t) => sum + t.amount.abs());
+    final totalIncome = _allTransactions
+        .where((t) => !t.isExpense)
+        .fold(0.0, (sum, t) => sum + t.amount.abs());
+    if (totalIncome <= 0) return 0;
+    return ((totalExpense / totalIncome) * 100).clamp(0.0, 100.0);
+  }
 
-  double get savedBalance => 10000000;
-  double get totalSpendPercent => 78;
+  Map<TransactionCategory, double> get categorySpend {
+    final result = <TransactionCategory, double>{};
+    final totalExpense = _allTransactions
+        .where((t) => t.isExpense)
+        .fold(0.0, (sum, t) => sum + t.amount.abs());
 
-  final Map<TransactionCategory, double> categorySpend = {
-    TransactionCategory.incomes: 35,
-    TransactionCategory.food: 28,
-    TransactionCategory.transportation: 15,
-    TransactionCategory.drink: 22,
-  };
+    for (final cat in TransactionCategory.values) {
+      if (cat == TransactionCategory.incomes) continue;
+      final catTotal = _allTransactions
+          .where((t) => t.category == cat)
+          .fold(0.0, (sum, t) => sum + t.amount.abs());
+      result[cat] = totalExpense > 0 ? (catTotal / totalExpense) * 100 : 0;
+    }
+
+    final totalIncome = _allTransactions
+        .where((t) => !t.isExpense)
+        .fold(0.0, (sum, t) => sum + t.amount.abs());
+    final grandTotal = totalExpense + totalIncome;
+    result[TransactionCategory.incomes] =
+        grandTotal > 0 ? (totalIncome / grandTotal) * 100 : 0;
+
+    return result;
+  }
+
+  List<double> get monthlyBalance {
+    final now = DateTime.now();
+    return List.generate(12, (i) {
+      final month = DateTime(now.year, now.month - 11 + i);
+      final income = _allTransactions
+          .where((t) =>
+              !t.isExpense &&
+              t.date.year == month.year &&
+              t.date.month == month.month)
+          .fold(0.0, (sum, t) => sum + t.amount.abs());
+      final expense = _allTransactions
+          .where((t) =>
+              t.isExpense &&
+              t.date.year == month.year &&
+              t.date.month == month.month)
+          .fold(0.0, (sum, t) => sum + t.amount.abs());
+      final net = (income - expense) / 1000000;
+      return net < 0 ? 0 : net;
+    });
+  }
+
+  List<String> get monthLabels {
+    const names = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    final now = DateTime.now();
+    return List.generate(12, (i) => names[(now.month - 12 + i + 12) % 12]);
+  }
+
+  List<double> get yearlyBalance {
+    final now = DateTime.now();
+    return List.generate(6, (i) {
+      final year = now.year - 5 + i;
+      final income = _allTransactions
+          .where((t) => !t.isExpense && t.date.year == year)
+          .fold(0.0, (sum, t) => sum + t.amount.abs());
+      final expense = _allTransactions
+          .where((t) => t.isExpense && t.date.year == year)
+          .fold(0.0, (sum, t) => sum + t.amount.abs());
+      final net = (income - expense) / 1000000;
+      return net < 0 ? 0 : net;
+    });
+  }
+
+  List<String> get yearLabels {
+    final now = DateTime.now();
+    return List.generate(6, (i) => '${now.year - 5 + i}');
+  }
+
+  List<double> get chartData =>
+      _selectedPeriod == PeriodFilter.month ? monthlyBalance : yearlyBalance;
+
+  List<String> get chartLabels =>
+      _selectedPeriod == PeriodFilter.month ? monthLabels : yearLabels;
+
+  List<TransactionModel> get filteredTransactions {
+    if (_selectedCategory == null) return _allTransactions;
+    return _allTransactions
+        .where((t) => t.category == _selectedCategory)
+        .toList();
+  }
+
+  Future<void> loadStatistic(String userId, {double userBalance = 0}) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      _savedBalance = userBalance;
+      final rawList = await DbHelper.getTransactionsByUser(userId);
+      _allTransactions = rawList.map((e) => TransactionModel.fromMap(e)).toList();
+    } catch (e) {
+      debugPrint('StatisticViewModel error: $e');
+    }
+
+    isLoading = false;
+    notifyListeners();
+  }
 
   Color categoryColor(TransactionCategory cat) {
     switch (cat) {
-      case TransactionCategory.incomes:      return const Color(0xFF7C3AED);
-      case TransactionCategory.food:         return const Color(0xFF2563EB);
+      case TransactionCategory.incomes:        return const Color(0xFF7C3AED);
+      case TransactionCategory.food:           return const Color(0xFF2563EB);
       case TransactionCategory.transportation: return const Color(0xFFDC2626);
-      case TransactionCategory.drink:        return const Color(0xFF16A34A);
+      case TransactionCategory.drink:          return const Color(0xFF16A34A);
+      case TransactionCategory.health:         return const Color(0xFF0891B2);
+      case TransactionCategory.bill:           return const Color(0xFFF59E0B);
+      case TransactionCategory.invest:         return const Color(0xFF10B981);
+      case TransactionCategory.ticket:         return const Color(0xFFEC4899);
+      case TransactionCategory.other:          return const Color(0xFF6B7280);
     }
   }
 
@@ -49,6 +159,11 @@ class StatisticViewModel extends ChangeNotifier {
       case TransactionCategory.food:           return 'Food';
       case TransactionCategory.transportation: return 'Transportation';
       case TransactionCategory.drink:          return 'Drink';
+      case TransactionCategory.health:         return 'Health';
+      case TransactionCategory.bill:           return 'Bill';
+      case TransactionCategory.invest:         return 'Invest';
+      case TransactionCategory.ticket:         return 'Ticket';
+      case TransactionCategory.other:          return 'Other';
     }
   }
 
@@ -58,45 +173,12 @@ class StatisticViewModel extends ChangeNotifier {
       case TransactionCategory.food:           return Icons.restaurant_rounded;
       case TransactionCategory.transportation: return Icons.directions_bus_rounded;
       case TransactionCategory.drink:          return Icons.local_cafe_rounded;
+      case TransactionCategory.health:         return Icons.local_hospital_rounded;
+      case TransactionCategory.bill:           return Icons.vpn_key_rounded;
+      case TransactionCategory.invest:         return Icons.monetization_on_rounded;
+      case TransactionCategory.ticket:         return Icons.confirmation_num_rounded;
+      case TransactionCategory.other:          return Icons.category_rounded;
     }
-  }
-
-  final List<TransactionModel> _allTransactions = [
-    TransactionModel(
-      id: '1', title: 'Payment', subtitle: 'Today 8:20 PM',
-      amount: -12000, category: TransactionCategory.food,
-      date: DateTime.now(),
-    ),
-    TransactionModel(
-      id: '2', title: 'Payment', subtitle: 'Jan 15, 4:10 PM',
-      amount: -15000, category: TransactionCategory.transportation,
-      date: DateTime.now().subtract(const Duration(days: 1)),
-    ),
-    TransactionModel(
-      id: '3', title: 'Income Salary', subtitle: 'Jan 14, 9:00 AM',
-      amount: 5000000, category: TransactionCategory.incomes,
-      date: DateTime.now().subtract(const Duration(days: 2)),
-    ),
-    TransactionModel(
-      id: '4', title: 'Buy Coffee', subtitle: 'Jan 13, 7:30 AM',
-      amount: -35000, category: TransactionCategory.drink,
-      date: DateTime.now().subtract(const Duration(days: 3)),
-    ),
-    TransactionModel(
-      id: '5', title: 'Lunch', subtitle: 'Jan 12, 12:00 PM',
-      amount: -45000, category: TransactionCategory.food,
-      date: DateTime.now().subtract(const Duration(days: 4)),
-    ),
-    TransactionModel(
-      id: '6', title: 'Bus Ticket', subtitle: 'Jan 11, 8:00 AM',
-      amount: -8000, category: TransactionCategory.transportation,
-      date: DateTime.now().subtract(const Duration(days: 5)),
-    ),
-  ];
-
-  List<TransactionModel> get filteredTransactions {
-    if (_selectedCategory == null) return _allTransactions;
-    return _allTransactions.where((t) => t.category == _selectedCategory).toList();
   }
 
   void setPeriodFilter(PeriodFilter period) {
@@ -136,6 +218,6 @@ class StatisticViewModel extends ChangeNotifier {
 
   String formatChartValue(double val) {
     if (val >= 10) return '${val.toInt()}Jt';
-    return '${val.toInt()}';
+    return val.toStringAsFixed(1);
   }
 }

@@ -1,7 +1,7 @@
 # Finlimit - QRIS Financial Limit Manager
 
 ## 📌 About The Project
-**Finlimit** is a mobile application developed using Flutter that helps users manage and control their QRIS transaction spending limits.  
+**Finlimit** is a mobile application developed using Flutter that helps users manage and control their  transaction spending limits add the trasaction with notification.  
 This application is designed to increase financial awareness and reduce consumptive behavior caused by the convenience of digital payments.
 
 With Finlimit, users can record transactions, monitor expenses, set spending limits, and receive reminders when approaching their financial limits.
@@ -82,7 +82,7 @@ The objectives of this application are:
 - MVVM (Model View ViewModel)
 
 ## Database
-- SQLite / Hive / Shared Preferences
+- SQLite
 
 ## State Management
 - Provider / Riverpod / GetX
