@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../models/user_model.dart';
 import 'login_screen.dart';
+import 'setup_profile_screen.dart'; // ← TAMBAH INI
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -39,9 +40,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       email: emailController.text.trim(),
       password: passwordController.text,
       monthlyLimit: 0,
+      dailyLimit: 0,
+      balance: 0,
       createdAt: DateTime.now().toIso8601String(),
     );
-
+    
     final success = await authVM.register(user);
 
     if (!mounted) return;
@@ -56,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(builder: (context) => SetupProfileScreen(userId: user.id)),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

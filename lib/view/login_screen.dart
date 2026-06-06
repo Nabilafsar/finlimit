@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import 'register_screen.dart';
 import 'main_screen.dart';
+import 'package:provider/provider.dart';
+import '../viewmodels/dashboard_viewmodel.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -39,6 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (context) => const MainScreen()),
         (route) => false,
       );
+      
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -48,6 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     }
   }
+
+  
 
   @override
   Widget build(BuildContext context) {

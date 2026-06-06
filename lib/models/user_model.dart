@@ -4,14 +4,18 @@ class UserModel {
   final String email;
   final String password;
   final double monthlyLimit;
+  final double dailyLimit;   
+  final double balance;      
   final String createdAt;
 
-  UserModel({
+UserModel({
     required this.id,
     required this.fullname,
     required this.email,
     required this.password,
     required this.monthlyLimit,
+    required this.dailyLimit,   
+    required this.balance,      
     required this.createdAt,
   });
 
@@ -22,6 +26,8 @@ class UserModel {
       'email': email,
       'password': password,
       'monthly_limit': monthlyLimit,
+      'daily_limit': dailyLimit,   
+      'balance': balance,          
       'created_at': createdAt,
     };
   }
@@ -32,7 +38,9 @@ class UserModel {
       fullname: map['fullname'],
       email: map['email'],
       password: map['password'],
-      monthlyLimit: map['monthly_limit'],
+      monthlyLimit: (map['monthly_limit'] as num?)?.toDouble() ?? 0.0,
+      dailyLimit: (map['daily_limit'] as num?)?.toDouble() ?? 0.0,   
+      balance: (map['balance'] as num?)?.toDouble() ?? 0.0,          
       createdAt: map['created_at'],
     );
   }

@@ -6,7 +6,6 @@ class AppDatabase {
 
   static Future<Database> getDatabase() async {
     if (_database != null) return _database!;
-
     _database = await _initDB();
     return _database!;
   }
@@ -16,11 +15,13 @@ class AppDatabase {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,           
       onCreate: _createDB,
+      onUpgrade: _upgradeDB, 
     );
   }
 
+  // ─── onCreate (fresh install) ───────────────────────────
   static Future<void> _createDB(Database db, int version) async {
     await db.execute('''
       CREATE TABLE users (
@@ -28,7 +29,9 @@ class AppDatabase {
         fullname TEXT,
         email TEXT,
         password TEXT,
-        monthly_limit REAL,
+        monthly_limit REAL DEFAULT 0,
+        daily_limit REAL DEFAULT 0,
+        balance REAL DEFAULT 0,
         created_at TEXT
       )
     ''');
@@ -69,5 +72,13 @@ class AppDatabase {
         created_at TEXT
       )
     ''');
+  }
+
+  // ─── onUpgrade (update dari versi lama) ─────────────────
+  static Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE users ADD COLUMN daily_limit REAL DEFAULT 0');
+      await db.execute('ALTER TABLE users ADD COLUMN balance REAL DEFAULT 0');
+    }
   }
 }

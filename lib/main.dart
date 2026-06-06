@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'viewmodels/auth_viewmodel.dart';
-import 'view/welcome_screen.dart';
+import 'viewmodels/dashboard_viewmodel.dart';
+import 'viewmodels/statistic_viewmodel.dart'; // ← TAMBAH INI
 import 'view/splash_screen.dart';
 import 'view/login_screen.dart';
 import 'view/register_screen.dart';
+import 'view/welcome_screen.dart';
 import 'view/main_screen.dart';
 
 void main() {
@@ -17,8 +19,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthViewModel(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => DashboardViewModel()),
+        ChangeNotifierProvider(create: (_) => StatisticViewModel()), // ← TAMBAH INI
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         routes: {
