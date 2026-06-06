@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'viewmodels/auth_viewmodel.dart';
 import 'viewmodels/dashboard_viewmodel.dart';
-import 'viewmodels/statistic_viewmodel.dart'; // ← TAMBAH INI
+import 'viewmodels/statistic_viewmodel.dart';
+import 'viewmodels/education_viewmodel.dart'; // ← TAMBAH INI
 import 'view/splash_screen.dart';
 import 'view/login_screen.dart';
 import 'view/register_screen.dart';
@@ -23,7 +24,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProvider(create: (_) => DashboardViewModel()),
-        ChangeNotifierProvider(create: (_) => StatisticViewModel()), // ← TAMBAH INI
+        ChangeNotifierProvider(create: (_) => StatisticViewModel()),
+        ChangeNotifierProvider(create: (_) => EducationViewModel()), // ← TAMBAH INI
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
