@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../viewmodels/dashboard_viewmodel.dart';
+import '../viewmodels/education_viewmodel.dart';
+import '../models/education_model.dart';
 import '../models/transaction_model.dart';
+import 'education_detail_screen.dart';
 
 class EducationScreen extends StatefulWidget {
   const EducationScreen({super.key});
@@ -26,6 +29,7 @@ class _EducationScreenState extends State<EducationScreen> {
       );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AuthViewModel>().addListener(_onAuthChanged);
+      context.read<EducationViewModel>().loadArticles();
     });
   }
 
@@ -54,6 +58,19 @@ class _EducationScreenState extends State<EducationScreen> {
     return 'Rp.$buf';
   }
 
+  String _formatDate(String isoDate) {
+    try {
+      final dt = DateTime.parse(isoDate);
+      final now = DateTime.now();
+      final diff = now.difference(dt).inDays;
+      if (diff == 0) return 'Today';
+      if (diff == 1) return '1 Day Ago';
+      return '$diff Days Ago';
+    } catch (_) {
+      return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final userName =
@@ -61,8 +78,8 @@ class _EducationScreenState extends State<EducationScreen> {
 
     return ChangeNotifierProvider.value(
       value: _vm,
-      child: Consumer<DashboardViewModel>(
-        builder: (context, vm, _) {
+      child: Consumer2<DashboardViewModel, EducationViewModel>(
+        builder: (context, vm, eduVM, _) {
           final diff = vm.spendingDiff;
           final isMore = diff > 0;
           final isLess = diff < 0;
@@ -130,7 +147,6 @@ class _EducationScreenState extends State<EducationScreen> {
                                   style: TextStyle(fontSize: 18),
                                 ),
                                 const SizedBox(height: 8),
-                                // Angka dari DB
                                 Text(
                                   vm.isLoading ? '-' : _fmt(vm.todaySpending),
                                   style: const TextStyle(
@@ -139,7 +155,6 @@ class _EducationScreenState extends State<EducationScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 6),
-                                // Perbandingan dengan kemarin
                                 if (!vm.isLoading)
                                   Text.rich(
                                     TextSpan(
@@ -154,8 +169,8 @@ class _EducationScreenState extends State<EducationScreen> {
                                           ),
                                           const TextSpan(
                                             text: 'More than yesterday',
-                                            style: TextStyle(
-                                                color: Colors.black87),
+                                            style:
+                                                TextStyle(color: Colors.black87),
                                           ),
                                         ] else if (isLess) ...[
                                           TextSpan(
@@ -167,14 +182,14 @@ class _EducationScreenState extends State<EducationScreen> {
                                           ),
                                           const TextSpan(
                                             text: 'Less than yesterday',
-                                            style: TextStyle(
-                                                color: Colors.black87),
+                                            style:
+                                                TextStyle(color: Colors.black87),
                                           ),
                                         ] else ...[
                                           const TextSpan(
                                             text: 'Same as yesterday',
-                                            style: TextStyle(
-                                                color: Colors.black54),
+                                            style:
+                                                TextStyle(color: Colors.black54),
                                           ),
                                         ],
                                       ],
@@ -183,8 +198,6 @@ class _EducationScreenState extends State<EducationScreen> {
                               ],
                             ),
                           ),
-
-                          // MINI CHART 7 hari dari data nyata
                           _MiniBarChart(transactions: vm.recentTransactions),
                         ],
                       ),
@@ -231,33 +244,38 @@ class _EducationScreenState extends State<EducationScreen> {
 
                     const SizedBox(height: 16),
 
-                    const _BlogCard(
-                      image: Icons.trending_up,
-                      title: "Mastering Your Personal Finance",
-                      description:
-                          "Learn how to manage your money wisely and build a secure financial future.",
-                    ),
-
-                    const _BlogCard(
-                      image: Icons.account_balance_wallet,
-                      title: "Smart Budgeting for Beginners",
-                      description:
-                          "Learn when to save and when to spend wisely.",
-                    ),
-
-                    const _BlogCard(
-                      image: Icons.savings,
-                      title: "Building Healthy Financial Habits",
-                      description:
-                          "Small habits today can create big financial success tomorrow.",
-                    ),
-
-                    const _BlogCard(
-                      image: Icons.payments,
-                      title: "Saving vs Spending: Finding the Balance",
-                      description:
-                          "Learn when to save and when to spend wisely.",
-                    ),
+                    // ARTIKEL DARI DB
+                    if (eduVM.isLoading)
+                      const Padding(
+                        padding: EdgeInsets.all(32),
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF2E5BFF),
+                        ),
+                      )
+                    else if (eduVM.articles.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(32),
+                        child: Text(
+                          'Belum ada artikel tersedia.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      )
+                    else
+                      ...eduVM.articles.map(
+                        (article) => _BlogCard(
+                          article: article,
+                          dateLabel: _formatDate(article.createdAt),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    EducationDetailScreen(article: article),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -269,7 +287,7 @@ class _EducationScreenState extends State<EducationScreen> {
   }
 }
 
-// Mini Bar Chart 7 hari terakhir dari data transaksi nyata
+// ─── Mini Bar Chart ───────────────────────────────────────────────────────────
 class _MiniBarChart extends StatelessWidget {
   final List<TransactionModel> transactions;
   const _MiniBarChart({required this.transactions});
@@ -319,102 +337,127 @@ class _MiniBarChart extends StatelessWidget {
   }
 }
 
+// ─── Blog Card ────────────────────────────────────────────────────────────────
 class _BlogCard extends StatelessWidget {
-  final IconData image;
-  final String title;
-  final String description;
+  final EducationModel article;
+  final String dateLabel;
+  final VoidCallback onTap;
 
   const _BlogCard({
-    required this.image,
-    required this.title,
-    required this.description,
+    required this.article,
+    required this.dateLabel,
+    required this.onTap,
   });
+
+  IconData _iconForCategory(String category) {
+    switch (category.toUpperCase()) {
+      case 'BUDGETING':
+        return Icons.account_balance_wallet;
+      case 'INVESTING':
+        return Icons.trending_up;
+      case 'HABITS':
+        return Icons.savings;
+      default:
+        return Icons.menu_book;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 95,
-            height: 95,
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(18),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 5),
             ),
-            child: Icon(
-              image,
-              size: 50,
-              color: const Color(0xFF2E5BFF),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 95,
+              height: 95,
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Icon(
+                _iconForCategory(article.category),
+                size: 50,
+                color: const Color(0xFF2E5BFF),
+              ),
             ),
-          ),
 
-          const SizedBox(width: 16),
+            const SizedBox(width: 16),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                Text(
-                  description,
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    height: 1.4,
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                Row(
-                  children: [
-                    const Text(
-                      "2 Days Ago",
-                      style: TextStyle(color: Colors.grey),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    article.title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
-                    const Spacer(),
-                    Text(
-                      "View All",
-                      style: TextStyle(color: Colors.grey.shade600),
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEEF2FF),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    const SizedBox(width: 8),
-                    const CircleAvatar(
-                      radius: 14,
-                      backgroundColor: Color(0xFF2E5BFF),
-                      child: Icon(
-                        Icons.arrow_forward,
-                        size: 16,
-                        color: Colors.white,
+                    child: Text(
+                      article.category,
+                      style: const TextStyle(
+                        color: Color(0xFF2E5BFF),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Row(
+                    children: [
+                      const Icon(Icons.access_time,
+                          size: 13, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Text(
+                        dateLabel,
+                        style: const TextStyle(
+                            color: Colors.grey, fontSize: 12),
+                      ),
+                      const Spacer(),
+                      const CircleAvatar(
+                        radius: 14,
+                        backgroundColor: Color(0xFF2E5BFF),
+                        child: Icon(
+                          Icons.arrow_forward,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
